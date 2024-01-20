@@ -31,7 +31,6 @@ public class TransferService {
         Map<String, Integer> accounts = new HashMap<>();
 
         try (PrintWriter writer = new PrintWriter(outputFile); BufferedReader reader = new BufferedReader(new FileReader(file))) {
-//                String[] parts1=null;
             File newDatabase = new File("src/resources/input/database.txt");
 
             for (String line : l) {
@@ -56,10 +55,9 @@ public class TransferService {
                 if (transfer != null) {
                     if (transfer(transfer) && accounts.containsKey(senderNumber) && accounts.containsKey(recipientNumber) && accounts.get(senderNumber) >= amount) {
                         writer.println(new Date() + " - Перевод выполнен успешно: " + transfer);
-                        //fileWriter.write("что то написали");
                         accounts.put(senderNumber, accounts.get(senderNumber) - amount);
                         accounts.put(recipientNumber, accounts.get(recipientNumber) + amount);
-                        // Переписываем файл
+
                         String fileLine;
                         StringBuilder newFileContent = new StringBuilder();
                         while ((fileLine = reader.readLine()) != null) {
@@ -67,45 +65,16 @@ public class TransferService {
                             String fileAccountNumber = fileParts[0];
                             int fileBalance = Integer.parseInt(fileParts[1]);
 
-                            // Если номер счета уже использовался, изменяем сумму на счету
                             if (fileAccountNumber.equals(senderNumber)) {
                                 accounts.put(senderNumber, accounts.get(senderNumber) - amount);
-                                //fileBalance -= amount;
-                                //fileWriter.write(fileAccountNumber+" "+fileBalance);
+
                             }
                             else if (fileAccountNumber.equals(recipientNumber)) {
                                 accounts.put(recipientNumber, accounts.get(recipientNumber) + amount);
-                                //fileBalance += amount;
-                                //fileWriter.write(fileAccountNumber+" "+fileBalance);
-                            }
 
-                            else{
-                                //fileWriter.write(fileLine);
                             }
-                            //bufferedWriter.write(newFileContent.toString());
-                            //bufferedWriter.flush();
-//                            if(file.delete()){
-//                                file.createNewFile();
-//                            }
-//                            if (!file.delete()) {
-//                                System.out.println("Не удалось удалить файл");
-//
-//                            }
-
 
                         }
-
-//                                for (int i = 0; i < parts1.length; i++) {
-//                                    if (parts1[i].equals(senderNumber) ){
-//                                        bufferedWriter.write(parts1[i] + " " + (accounts.get(senderNumber) - amount));
-//                                    } else if ( parts1[i].equals(recipientNumber)) {
-//                                        bufferedWriter.write(parts1[i] + " " + (accounts.get(recipientNumber) + amount));
-//                                    } else{
-//                                        bufferedWriter.write(line);
-//                                    }
-//                                }
-                        //writer2.write(accounts.get(senderNumber) + " "+ accounts.get(amount));
-                        //writer2.write(accounts.get(recipientNumber) + " "+ accounts.get(amount));
 
                     } else {
                         writer.println(new Date() + " - Ошибка при переводе: " + transfer);
@@ -113,7 +82,6 @@ public class TransferService {
                 }
 
             }
-            //fileWriter.write("\nend of file");
 
             if (!newDatabase.renameTo(file)) {
                 System.out.println("Не удалось переименовать файл");
