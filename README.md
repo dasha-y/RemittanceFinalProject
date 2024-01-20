@@ -18,3 +18,4 @@ The files must contain the following fields:
 •amount to transfer (integer numbers only).
 Example of correct data: 
 12345-12345 23456-23456 7
+*!!! file "RemittanceFinalProgect.png" is a class diagram, files input.txt and account.txt with data for parsing
