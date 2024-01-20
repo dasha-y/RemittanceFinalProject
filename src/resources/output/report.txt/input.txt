@@ -1,0 +1,4 @@
+Sat Jan 20 21:01:01 MSK 2024 - Ошибка при переводе: Transfer{amount=43, sender=00005-00010, recipient=00005-00011}
+Sat Jan 20 21:01:01 MSK 2024 - Перевод выполнен успешно: Transfer{amount=53, sender=00005-00018, recipient=00005-00012}
+Sat Jan 20 21:01:01 MSK 2024 - Ошибка при переводе: Transfer{amount=16, sender=00005-00019, recipient=00003-01413}
+Sat Jan 20 21:01:01 MSK 2024 - Ошибка при переводе: Transfer{amount=65, sender=00005-00020, recipient=00001-06928}
