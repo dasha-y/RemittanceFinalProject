@@ -1,4 +1,7 @@
 import domain.Transfer;
+import exception.ErrorMessages;
+import exception.MoneyTransferException;
+import service.Constants;
 import service.OperationList;
 import service.TransferService;
 import util.FileUtils;
@@ -7,14 +10,16 @@ import util.ReportUtils;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class Main {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, MoneyTransferException {
 
         Random random = new Random();
 
-        File file = new File("src/resources/input/database.txt");
+        File file = new File(Constants.BANKS_ACCOUNTS_FILE_PATH);
         FileWriter writer = new FileWriter(file);
         for (int i = 1; i < 10; i++) {
 //                String accountNumber = String.format("%05d-%05d", random.nextInt(100000) + 1, random.nextInt(100000)+1);
@@ -27,20 +32,20 @@ public class Main {
 
 
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Введите путь к каталогу, который содержит файлы для парсинга:");
+        System.out.println(Constants.FILE_PATH_REQUEST);
         String directoryPath = scanner.nextLine();
         File directory = new File(directoryPath);
         if (!directory.isDirectory()) {
-            System.out.println("Указанный путь не является директорией.");
+            System.out.println(ErrorMessages.FILE_PARSING_DIRECTORY_ERROR_MESSAGE);
             return;
         }
 
         File[] inputFiles = FileUtils.getFilesWithExtension(directory, "txt");
         if (inputFiles.length == 0 || inputFiles == null) {
-            System.out.println("Входные файлы не найдены");
+            System.out.println(ErrorMessages.FILE_PARSING_IS_EMPTY_ERROR_MESSAGE);
             return;
         }
-        File outputDir = new File("src/resources/output/report.txt");
+        File outputDir = new File(Constants.REPORT_FILE_PATH);
         if (!outputDir.exists()) {
             outputDir.mkdir();
         }
@@ -53,14 +58,14 @@ public class Main {
         OperationList operationList = new OperationList (transfers);
         while (true) {
             System.out.println("Выберите операцию: ");
-            System.out.println("1 - Парсинг файлов");
-            System.out.println("2 - Вывод списка всех операций");
-            System.out.println("3 - Выход");
+            System.out.println(OperationList.SELECT_FILE_PARSING);
+            System.out.println(OperationList.SELECT_OPERATION_LIST);
+            System.out.println(OperationList.SELECT_EXIT);
             int choice = scanner.nextInt();
             scanner.nextLine();
             switch (choice) {
                 case 1:
-                    System.out.println("Выполняется парсинг файлов...");
+                    System.out.println(OperationList.PARSING);
                     for (File inputFile : inputFiles) {
 
                         List<String> lines = FileUtils.readLines(inputFile);
@@ -69,26 +74,26 @@ public class Main {
                         File outputFile = new File(outputDir, fileName);
 
                         if (transferService.processFile(lines, outputFile, l, file)) {
-                            String reportContent = new Date() + " - Файл " + fileName + " - успешно обработан\n";
+                            String reportContent = LocalDate.now() + " - Файл " + fileName + Constants.SUCCESSFUL_PROCESSING;
                             ReportUtils.createReportFile(new File(outputDir, "report.txt"), reportContent);
                         } else {
-                            String reportContent = new Date() + " - Файл " + fileName + " - ошибка во время обработки\n";
+                            String reportContent = LocalDate.now() + " - Файл " + fileName + ErrorMessages.FILE_PARSING_ERROR_MESSAGE;
                             ReportUtils.createReportFile(new File(outputDir, "report.txt"), reportContent);
                         }
 
                     }
 
-                    System.out.println("Парсинг файлов завершен. Результаты парсинга будет находится в папке output после завершения программы");
+                    System.out.println(OperationList.RESULT);
                     break;
                 case 2:
-                    System.out.println("Вывод списка всех операций: ");
+                    System.out.println(OperationList.OPERATION_LIST);
                     operationList.print();
                     break;
                 case 3:
-                    System.out.println("Выход.");
+                    System.out.println(OperationList.EXIT);
                     return;
                 default:
-                    System.out.println("Неверный выбор.");
+                    System.out.println(ErrorMessages.WRONG_CHOICE_ERROR_MESSAGE);
                     break;
             }
         }

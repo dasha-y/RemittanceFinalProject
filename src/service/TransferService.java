@@ -1,12 +1,19 @@
 package service;
 
 import domain.Transfer;
+import exception.ErrorMessages;
+import exception.MoneyTransferException;
 
 import java.io.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-public class TransferService {
+public class TransferService implements Constants{
     private List<Transfer> transfers;
+    private static final String BANKS_ACCOUNTS_FILE= Constants.BANKS_ACCOUNTS_FILE_PATH;
+    private String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss "));
 
     public TransferService() {
         transfers = new ArrayList<>();
@@ -27,11 +34,11 @@ public class TransferService {
         return true;
     }
 
-    public boolean processFile(List<String> lines, File outputFile, List<String> l, File file) {
+    public boolean processFile(List<String> lines, File outputFile, List<String> l, File file) throws MoneyTransferException {
         Map<String, Integer> accounts = new HashMap<>();
 
         try (PrintWriter writer = new PrintWriter(outputFile); BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            File newDatabase = new File("src/resources/input/database.txt");
+            File newDatabase = new File(BANKS_ACCOUNTS_FILE);
 
             for (String line : l) {
                 String[] parts1 = line.split(" ");
@@ -54,7 +61,7 @@ public class TransferService {
                 }
                 if (transfer != null) {
                     if (transfer(transfer) && accounts.containsKey(senderNumber) && accounts.containsKey(recipientNumber) && accounts.get(senderNumber) >= amount) {
-                        writer.println(new Date() + " - Перевод выполнен успешно: " + transfer);
+                        writer.println(date + Constants.SUCCESSFUL_TRANSACTION + transfer);
                         accounts.put(senderNumber, accounts.get(senderNumber) - amount);
                         accounts.put(recipientNumber, accounts.get(recipientNumber) + amount);
 
@@ -71,20 +78,16 @@ public class TransferService {
                             }
                             else if (fileAccountNumber.equals(recipientNumber)) {
                                 accounts.put(recipientNumber, accounts.get(recipientNumber) + amount);
-
                             }
-
                         }
-
                     } else {
-                        writer.println(new Date() + " - Ошибка при переводе: " + transfer);
+                        writer.println(date + ErrorMessages.REPORT_TRANSACTION_ERROR_MESSAGE + transfer);
                     }
                 }
-
             }
 
             if (!newDatabase.renameTo(file)) {
-                System.out.println("Не удалось переименовать файл");
+                System.out.println(ErrorMessages.RENAME_ERROR_MESSAGE);
             }
 
             FileWriter fileWriter = new FileWriter(newDatabase);
@@ -96,8 +99,8 @@ public class TransferService {
             fileWriter.close();
             return true;
         } catch (IOException e) {
-            e.printStackTrace();
-            return false;
+            throw new MoneyTransferException(ErrorMessages.PARSING_ERROR_MESSAGE, e);
+
         }
 
 
